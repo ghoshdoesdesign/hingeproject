@@ -70,7 +70,7 @@ def analyze_images_with_gpt4(image_paths):
 
 if __name__ == '__main__':
     os.makedirs('uploads', exist_ok=True)  # Create uploads directory if it doesn't exist
-    app.run(debug=True)
+    app.run()
 
 
 
