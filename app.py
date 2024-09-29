@@ -34,7 +34,7 @@ def analyze_images():
 
 # Function to analyze multiple base64-encoded images with GPT-4
 def analyze_images_with_gpt4(image_paths):
-    api_key = "sk-VVYt9NdbStVVX5LMqnq5ifUZTBa8RzccQQ3OBkcS9kT3BlbkFJgTFUkRLdzqZa-2zOCuCZxPfKtIgmYGhIjlNrKdBfMA"
+    api_key = os.getenv('OPENAI_API_KEY') 
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
