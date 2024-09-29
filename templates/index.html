@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackMyHinge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="upload-container">
+        <div class="card">
+            <h1>Welcome to Hack My Hinge!</h1>
+            <br><br/>
+            <p>Upload screenshots of your Hinge profile and get directed analysis that 10x better your chances of deleting the app</p>
+            <form id="image-upload-form" enctype="multipart/form-data">
+                <label for="image-input" class="file-label">   </label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="image-input" name="images" accept="image/*" multiple required>
+                    <label for="image-input" class="choose-file-button">Choose Image</label>
+                    <span id="file-chosen">No file chosen</span>
+                </div>
+                <button type="submit" class="analyze-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"></path></svg>
+                    Analyze My Profile
+                </button>
+            </form>
+            <br><br/>
+            <div id="loading-message" style="display: none;">Give me a moment, let me analyze your Hinge profile...</div> <!-- This div will show the loading message -->
+            <div id="response-container"></div> <!-- This div will display the structured output -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('image-input').addEventListener('change', function(event) {
+            const fileInput = event.target;
+            const fileChosen = document.getElementById('file-chosen');
+            if (fileInput.files.length > 0) {
+                fileChosen.textContent = fileInput.files.length + ' file(s) selected';
+            } else {
+                fileChosen.textContent = 'No file chosen';
+            }
+        });
+
+        document.getElementById('image-upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Show the loading message
+            const loadingMessage = document.getElementById('loading-message');
+            loadingMessage.style.display = 'block';  // Make the message visible
+            
+            const formData = new FormData();
+            const files = document.getElementById('image-input').files;
+
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+
+            fetch('/analyze-images', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide the loading message
+                loadingMessage.style.display = 'none';
+                
+                const responseContainer = document.getElementById('response-container');
+                let analysis = data.choices[0].message.content;
+
+                // Replace specific phrases with bold text
+                analysis = analysis.replace(/Image Quality/g, "<strong>Image Quality</strong>")
+                                   .replace(/Prompt Quality/g, "<strong>Prompt Quality</strong>")
+                                   .replace(/Hinge Appeal Rating/g, "<strong>Hinge appeal rating</strong>")
+                                   .replace(/Top 3 Actionable Changes/g, "<strong>top 3 actionable changes</strong>");
+                
+                // Setting the content inside the response container
+                responseContainer.innerHTML = analysis.replace(/\n/g, "<br>");
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Hide the loading message in case of error
+                loadingMessage.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
